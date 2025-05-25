@@ -10,7 +10,11 @@ C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\ja
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\entity\Gamer.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\entity\GamerSkill.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\enums\Level.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\exception\GlobalExceptionHandler.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\GamingDirectoryApplication.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\repository\GameRepository.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\repository\GamerRepository.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\repository\GamerSkillRepository.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\service\GamerService.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\service\GamerSkillService.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\service\GameService.java

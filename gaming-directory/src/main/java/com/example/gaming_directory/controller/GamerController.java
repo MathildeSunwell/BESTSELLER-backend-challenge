@@ -2,17 +2,15 @@ package com.example.gaming_directory.controller;
 
 import com.example.gaming_directory.dto.GamerDTO;
 import com.example.gaming_directory.entity.Gamer;
-import com.example.gaming_directory.repository.GamerRepository;
+import com.example.gaming_directory.service.GamerService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,93 +20,38 @@ import java.util.Optional;
 public class GamerController {
     
     @Autowired
-    private GamerRepository gamerRepository;
+    private GamerService gamerService;
     
     // Endpoint to get all gamers
-    @Operation(summary = "Get all gamers", description = "Retrieve a list of all registered gamers")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of gamers")
+    @Operation(summary = "Get all gamers")
     @GetMapping
     public ResponseEntity<List<Gamer>> getAllGamers() {
-        List<Gamer> gamers = gamerRepository.findAll();
+        List<Gamer> gamers = gamerService.getAllGamers();
         return ResponseEntity.ok(gamers);
     }
 
     // Endpoint to create a new gamer
-    @Operation(summary = "Create a new gamer", description = "Register a new gamer in the system")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Gamer created successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "409", description = "Username already exists")
-    })
+    @Operation(summary = "Create a new gamer")
     @PostMapping
-    public ResponseEntity<Object> createGamer(@Valid @RequestBody GamerDTO gamerDTO) {
-        try {
-            // Basic input validation
-            String username = gamerDTO.getUsername();
-            String country = gamerDTO.getCountry();
-            
-            if (username == null || username.trim().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Username is required");
-            }
-            
-            if (country == null || country.trim().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Country is required");
-            }
-            
-            // Trim whitespace
-            username = username.trim();
-            country = country.trim();
+    public ResponseEntity<Gamer> createGamer(@Valid @RequestBody GamerDTO gamerDTO) {
 
-            // Check if username already exists
-            if (gamerRepository.findByUsername(username).isPresent()) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Username already exists");
-            }
-
-            // Create and save gamer
-            Gamer gamer = new Gamer(username, country);
-            Gamer savedGamer = gamerRepository.save(gamer);
-            
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedGamer);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error creating gamer: " + e.getMessage());
-        }
+        Gamer savedGamer = gamerService.createGamer(
+            gamerDTO.getUsername(),
+            gamerDTO.getCountry()
+        );
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedGamer);
     }
     
-    // Endpoint to get a gamer by ID
-    @Operation(summary = "Get gamer by ID", description = "Retrieve a specific gamer by their ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Gamer found successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid ID format"),
-        @ApiResponse(responseCode = "404", description = "Gamer not found")
-    })
+    // Endpoint to check if a gamer exists by username
+    @Operation(summary = "Get gamer by ID")
     @GetMapping("/{id}") 
-    public ResponseEntity<Object> getGamerById(
-            @Parameter(description = "ID of the gamer to retrieve") 
-            @PathVariable Long id) {
+    public ResponseEntity<Gamer> getGamerById(@PathVariable Long id) {
+
+        Optional<Gamer> gamer = gamerService.getGamerById(id);
         
-        try {
-            // Validate ID
-            if (id == null || id <= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Invalid ID. ID must be a positive number");
-            }
-            
-            Optional<Gamer> gamer = gamerRepository.findById(id);
-            
-            if (gamer.isPresent()) {
-                return ResponseEntity.ok(gamer.get());
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Gamer not found with ID: " + id);
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error retrieving gamer: " + e.getMessage());
-        }
+        // For 404 cases
+        return gamer.map(ResponseEntity::ok)
+                   .orElse(ResponseEntity.notFound().build());
     }
 }

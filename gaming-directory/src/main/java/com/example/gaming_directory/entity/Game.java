@@ -18,7 +18,7 @@ public class Game {
     @Column(unique = true)
     private String name;
     
-    @JsonIgnore
+    @JsonIgnore // Hide the full nested gamerSkills object from JSON
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<GamerSkill> gamerSkills = new HashSet<>();
 
@@ -29,7 +29,7 @@ public class Game {
         this.name = name;
     }
 
-    // Getters and Setters
+    // Get and Set
     public Long getId() {
         return id;
     }
