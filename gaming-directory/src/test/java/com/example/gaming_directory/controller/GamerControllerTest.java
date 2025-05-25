@@ -122,15 +122,15 @@ public class GamerControllerTest {
         verify(gamerRepository, times(1)).save(any(Gamer.class));
     }
 
-// Return 400 when username already exists
+// Return 409 when username already exists
     @Test 
-    void createGamer_WithExistingUsername_ShouldReturn400() throws Exception {
+    void createGamer_WithExistingUsername_ShouldReturn409() throws Exception {
         when(gamerRepository.findByUsername("TestGamer1")).thenReturn(Optional.of(testGamer));
         
         mockMvc.perform(post("/api/gamers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testGamerDTO)))
-                .andExpect(status().isBadRequest()) 
+                .andExpect(status().isConflict()) 
                 .andExpect(content().string("Username already exists"));
         
         // Verify repository was checked for username, but save was never called
