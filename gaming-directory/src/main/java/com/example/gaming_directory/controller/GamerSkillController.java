@@ -24,7 +24,7 @@ public class GamerSkillController {
     
     @Autowired
     private GamerSkillService gamerSkillService;
-    
+
     // Endpoint to link a gamer to a game with a skill level
     @Operation(summary = "Link gamer to game", description = "Create or update a gamer's skill level for a specific game")
     @ApiResponses(value = {
@@ -34,8 +34,7 @@ public class GamerSkillController {
     })
     @PostMapping
     public ResponseEntity<GamerSkill> linkGamerToGame(@Valid @RequestBody GamerSkillDTO gamerSkillDTO) {
-        // Input validation is handled by @Valid and GlobalExceptionHandler
-        // Business logic is handled by the service layer
+
         GamerSkill savedGamerSkill = gamerSkillService.linkGamerToGame(
             gamerSkillDTO.getUsername(),
             gamerSkillDTO.getGameName(),
@@ -58,7 +57,8 @@ public class GamerSkillController {
             @Parameter(description = "Skill level") @RequestParam Level level) {
         
         List<GamerSkill> gamerSkills = gamerSkillService.getGamersByLevelAndGame(gameName, level);
-        
+
+        // For empty results return 404
         if (gamerSkills.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -80,6 +80,7 @@ public class GamerSkillController {
         
         List<GamerSkill> matchingGamers = gamerSkillService.searchGamers(level, gameName, country);
         
+        // For empty results return 404
         if (matchingGamers.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

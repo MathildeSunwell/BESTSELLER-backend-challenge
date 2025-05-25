@@ -1,6 +1,7 @@
 package com.example.gaming_directory.entity;
 
 import com.example.gaming_directory.enums.Level;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,11 +14,13 @@ public class GamerSkill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @JsonIgnore  // Hide the full nested gamer object from JSON
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "gamer_id", nullable = false)
     @NotNull
     private Gamer gamer;
     
+    @JsonIgnore  
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "game_id", nullable = false)
     @NotNull
@@ -69,7 +72,7 @@ public class GamerSkill {
         this.level = level;
     }
 
-    // Clean JSON representation
+    // Clean JSON representation - these will be the only fields shown in JSON
     public String getGamerName() {
         return gamer.getUsername();
     }

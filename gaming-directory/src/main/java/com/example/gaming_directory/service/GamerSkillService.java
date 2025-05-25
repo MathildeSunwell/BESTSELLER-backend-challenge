@@ -117,19 +117,4 @@ public class GamerSkillService {
         }
         return gamerSkillRepository.findById(id);
     }
-
-    // Find existing skill for a gamer and game combination
-    public Optional<GamerSkill> findByGamerAndGame(String username, String gameName) {
-        Optional<Gamer> gamer = gamerRepository.findByUsername(username);
-        Optional<Game> game = gameRepository.findByName(gameName);
-        
-        if (gamer.isPresent() && game.isPresent()) {
-            return gamerSkillRepository.findByGamerIdAndGameId(
-                gamer.get().getId(), 
-                game.get().getId()
-            );
-        }
-        
-        return Optional.empty();
-    }
 }

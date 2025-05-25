@@ -23,7 +23,6 @@ public class TestData implements CommandLineRunner {
     @Autowired
     private GamerSkillRepository gamerSkillRepository;
     
-    // '...' means this method can take any number of string arguments (varargs)
     @Override
     public void run(String... args) throws Exception {
         

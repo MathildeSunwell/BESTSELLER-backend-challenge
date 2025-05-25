@@ -25,8 +25,7 @@ public class Gamer {
     @NotBlank(message = "Country is required")
     private String country;
 
-    // "Don't load the skills until I ask for them" - lazy loading 
-    @JsonIgnore
+    @JsonIgnore // Hide the full nested gamerSkills object from JSON
     @OneToMany(mappedBy = "gamer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<GamerSkill> gamerSkills = new HashSet<>();
 
