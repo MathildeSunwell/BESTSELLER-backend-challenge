@@ -1,0 +1,16 @@
+com\example\gaming_directory\config\TestData.class
+com\example\gaming_directory\dto\GamerSkillDTO.class
+com\example\gaming_directory\repository\GamerSkillRepository.class
+com\example\gaming_directory\entity\GamerSkill.class
+com\example\gaming_directory\GamingDirectoryApplication.class
+com\example\gaming_directory\repository\GamerRepository.class
+com\example\gaming_directory\dto\GamerDTO.class
+com\example\gaming_directory\entity\Game.class
+com\example\gaming_directory\controller\GameController.class
+com\example\gaming_directory\config\SwaggerConfig.class
+com\example\gaming_directory\entity\Gamer.class
+com\example\gaming_directory\enums\Level.class
+com\example\gaming_directory\repository\GameRepository.class
+com\example\gaming_directory\controller\GamerSkillController.class
+com\example\gaming_directory\dto\GameDTO.class
+com\example\gaming_directory\controller\GamerController.class

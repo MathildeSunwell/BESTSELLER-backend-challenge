@@ -1,7 +1,16 @@
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\config\SwaggerConfig.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\config\TestData.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\controller\GameController.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\controller\GamerController.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\controller\GamerSkillController.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\dto\GameDTO.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\dto\GamerDTO.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\dto\GamerSkillDTO.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\entity\Game.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\entity\Gamer.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\entity\GamerSkill.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\enums\Level.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\GamingDirectoryApplication.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\repository\GameRepository.java
 C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\repository\GamerRepository.java
+C:\Users\mathi\Desktop\BESTSELLER-backend-challenge\gaming-directory\src\main\java\com\example\gaming_directory\repository\GamerSkillRepository.java
