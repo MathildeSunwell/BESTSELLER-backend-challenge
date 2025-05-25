@@ -16,7 +16,7 @@ public class GameDTO {
         this.name = name;
     }
 
-    // Getters and Setters
+    // Get and Set
     public String getName() {
         return name;
     }

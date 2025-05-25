@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotBlank;
 
 public class GamerDTO {
+
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
     private String username;
@@ -12,7 +13,7 @@ public class GamerDTO {
     @Size(min = 2, max = 60, message = "Country must be between 2 and 60 characters")
     private String country;
 
-    // Constructor
+    // Constructors
     public GamerDTO() {}
 
     public GamerDTO(String username, String country) {

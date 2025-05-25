@@ -2,14 +2,15 @@ package com.example.gaming_directory.dto;
 
 import com.example.gaming_directory.enums.Level;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public class GamerSkillDTO {
     
-    @NotNull(message = "Gamer ID is required")
-    private Long gamerId;
+    @NotBlank(message = "Username is required")
+    private String username;
     
-    @NotNull(message = "Game ID is required")
-    private Long gameId;
+    @NotBlank(message = "Game name is required")
+    private String gameName;
     
     @NotNull(message = "Level is required")
     private Level level;
@@ -17,27 +18,27 @@ public class GamerSkillDTO {
     // Constructors
     public GamerSkillDTO() {}
 
-    public GamerSkillDTO(Long gamerId, Long gameId, Level level) {
-        this.gamerId = gamerId;
-        this.gameId = gameId;
+    public GamerSkillDTO(String username, String gameName, Level level) {
+        this.username = username;
+        this.gameName = gameName;
         this.level = level;
     }
 
-    // Getters and Setters
-    public Long getGamerId() {
-        return gamerId;
+    // Get and Set
+    public String getUsername() {
+        return username;
     }
 
-    public void setGamerId(Long gamerId) {
-        this.gamerId = gamerId;
+    public void setUsername(String username) {
+        this.username = username != null ? username.trim() : null;
     }
 
-    public Long getGameId() {
-        return gameId;
+    public String getGameName() {
+        return gameName;
     }
 
-    public void setGameId(Long gameId) {
-        this.gameId = gameId;
+    public void setGameName(String gameName) {
+        this.gameName = gameName != null ? gameName.trim() : null;
     }
 
     public Level getLevel() {
