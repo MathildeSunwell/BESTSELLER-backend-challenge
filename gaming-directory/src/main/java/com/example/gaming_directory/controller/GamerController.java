@@ -16,17 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * REST Controller for handling all gamer-related HTTP requests.
- * This controller provides endpoints for CRUD operations on Gamer entities.
- * 
- * Base URL: /api/gamers
- * 
- * RestController - Combines @Controller and @ResponseBody, automatically converts return values to JSON
- * RequestMapping - Sets the base URL path for all endpoints in this controller
- * Tag - Swagger annotation for grouping related endpoints in the API documentation
- */
-
 @RestController
 @RequestMapping("/api/gamers")
 @Tag(name = "Gamer Management", description = "API for managing gamers in the gaming directory")
@@ -59,7 +48,7 @@ public class GamerController {
             }
 
             // Convert DTO to Entity 
-            Gamer gamer = new Gamer(gamerDTO.getUsername());
+            Gamer gamer = new Gamer(gamerDTO.getUsername(), gamerDTO.getCountry());
 
             Gamer savedGamer = gamerRepository.save(gamer);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedGamer);
