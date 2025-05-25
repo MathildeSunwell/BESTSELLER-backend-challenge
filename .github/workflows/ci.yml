@@ -17,11 +17,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    # Set up Java 24
+    # Set up Java 21
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
-        java-version: '24'
+        java-version: '21'
         distribution: 'temurin'
         
     # Cache Maven dependencies
