@@ -15,7 +15,7 @@ public class Gamer {
     @Column(unique = true)
     private String username;
 
-    // Constructors
+    // Constructor
     public Gamer() {}
 
     public Gamer(String username) {
