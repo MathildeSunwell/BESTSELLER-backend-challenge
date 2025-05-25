@@ -2,7 +2,7 @@ package com.example.gaming_directory.controller;
 
 import com.example.gaming_directory.dto.GameDTO;
 import com.example.gaming_directory.entity.Game;
-import com.example.gaming_directory.repository.GameRepository;
+import com.example.gaming_directory.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,14 +23,14 @@ import java.util.Optional;
 public class GameController {
     
     @Autowired
-    private GameRepository gameRepository;
+    private GameService gameService;
     
     // Endpoint to get all games
     @Operation(summary = "Get all games", description = "Retrieve a list of all games")  
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list of games")
     @GetMapping
     public ResponseEntity<List<Game>> getAllGames() {
-        List<Game> games = gameRepository.findAll();
+        List<Game> games = gameService.getAllGames();
         return ResponseEntity.ok(games);
     }
     
@@ -41,35 +42,12 @@ public class GameController {
         @ApiResponse(responseCode = "409", description = "Game name already exists")
     })
     @PostMapping
-    public ResponseEntity<Object> createGame(@Valid @RequestBody GameDTO gameDTO) {
-        try {
-            // Basic input validation
-            String gameName = gameDTO.getName();
-            
-            if (gameName == null || gameName.trim().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Game name is required");
-            }
-            
-            // Trim whitespace
-            gameName = gameName.trim();
-            
-            // Check if game name already exists
-            if (gameRepository.findByName(gameName).isPresent()) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Game name already exists");
-            }
-
-            // Create and save game
-            Game game = new Game(gameName);
-            Game savedGame = gameRepository.save(game);
-            
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedGame);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error creating game: " + e.getMessage());
-        }
+    public ResponseEntity<Game> createGame(@Valid @RequestBody GameDTO gameDTO) {
+        // Input validation is handled by @Valid and GlobalExceptionHandler
+        // Business logic is handled by the service layer
+        Game savedGame = gameService.createGame(gameDTO.getName());
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedGame);
     }
     
     // Endpoint to get a game by ID
@@ -80,28 +58,17 @@ public class GameController {
         @ApiResponse(responseCode = "404", description = "Game not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getGameById(
+    public ResponseEntity<Game> getGameById(
             @Parameter(description = "ID of the game to retrieve") 
             @PathVariable Long id) {
         
-        try {
-            // Validate ID
-            if (id == null || id <= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Invalid ID. ID must be a positive number");
-            }
-            
-            Optional<Game> game = gameRepository.findById(id);
-            
-            if (game.isPresent()) {
-                return ResponseEntity.ok(game.get());
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Game not found with ID: " + id);
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error retrieving game: " + e.getMessage());
+        // Input validation and business logic handled by service
+        Optional<Game> game = gameService.getGameById(id);
+        
+        if (game.isPresent()) {
+            return ResponseEntity.ok(game.get());
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 }
