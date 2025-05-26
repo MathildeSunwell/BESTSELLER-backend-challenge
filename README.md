@@ -148,19 +148,31 @@ Throughout development, I used Claude (claude.ai) as a coding assistant for guid
 ### Test Structure
 
 src/test/java/
+
 ├── controller/          # API layer tests
+
 ├── service/            # Business logic tests
+
 ├── entity/             # Entity validation tests
+
 └── GamingDirectoryApplicationTests.java
 
 ### Project Structure
 
 src/main/java/com/example/gaming_directory/
+
 ├── config/             # Configuration classes
+
 ├── controller/         # REST controllers
+
 ├── dto/               # Data Transfer Objects
+
 ├── entity/            # JPA entities
+
 ├── enums/             # Enums (Level)
+
 ├── exception/         # Global exception handling
+
 ├── repository/        # JPA repositories
+
 └── service/           # Business logic services
