@@ -70,7 +70,7 @@ Content-Type: application/json
 }
 ```
 
-#### 2. Search for Auto-Matching Gamers
+#### 2. Search for Matching Gamers
 ```http
 GET /api/gamer-skills/search?level=PRO&gameName=Counter-Strike&country=USA
 ```
