@@ -3,7 +3,7 @@ Java Spring Boot API for managing gamers and their game skill levels with search
 
 # Gaming Directory API
 
-A Spring Boot REST API for managing gamers, their geographic locations, games they play, and skill levels. This application provides endpoints for linking gamers to games with skill levels and searching for auto-matching gamers based on various criteria.
+A Spring Boot REST API for managing gamers, their geographic locations, games they play, and skill levels. This application provides endpoints for linking gamers to games with skill levels and searching for matching gamers based on various criteria.
 
 ## Challenge Requirements
 
@@ -142,6 +142,8 @@ Throughout development, I used Claude (claude.ai) as a coding assistant for guid
 
 7. **Better Architecture**: Realized I should add a proper service layer to separate business logic from controllers, so I refactored the code and updated my tests.
 
+
+## Test and Project structure
 
 ### Test Structure
 
