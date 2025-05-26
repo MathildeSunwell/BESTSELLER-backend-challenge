@@ -2,7 +2,7 @@ package com.example.gaming_directory.controller;
 
 import com.example.gaming_directory.dto.GamerDTO;
 import com.example.gaming_directory.entity.Gamer;
-import com.example.gaming_directory.repository.GamerRepository;
+import com.example.gaming_directory.service.GamerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -29,7 +28,7 @@ public class GamerControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private GamerRepository gamerRepository; 
+    private GamerService gamerService; // Mock service instead of repository
     
     @Autowired
     private ObjectMapper objectMapper; 
@@ -47,7 +46,6 @@ public class GamerControllerTest {
 
 // --- Test cases for GET /api/gamers endpoint ---
     
-// Return all gamers
     @Test 
     void getAllGamers_ShouldReturnListOfGamers() throws Exception {
         List<Gamer> gamers = Arrays.asList(
@@ -55,7 +53,7 @@ public class GamerControllerTest {
             new Gamer("Chandler", "USA"),
             new Gamer("Ross", "Canada")
         );
-        when(gamerRepository.findAll()).thenReturn(gamers);
+        when(gamerService.getAllGamers()).thenReturn(gamers);
 
         mockMvc.perform(get("/api/gamers"))
                 .andExpect(status().isOk())
@@ -68,16 +66,14 @@ public class GamerControllerTest {
                 .andExpect(jsonPath("$[2].username").value("Ross"))
                 .andExpect(jsonPath("$[2].country").value("Canada"));
         
-        // Verify repository was called once
-        verify(gamerRepository, times(1)).findAll();
+        verify(gamerService, times(1)).getAllGamers();
     }
 
 // --- Test cases for GET /api/gamers/{id} endpoint ---
 
-// Return gamer by ID
     @Test 
     void getGamerById_WhenGamerExists_ShouldReturnGamer() throws Exception {
-        when(gamerRepository.findById(1L)).thenReturn(Optional.of(testGamer));
+        when(gamerService.getGamerById(1L)).thenReturn(Optional.of(testGamer));
         
         mockMvc.perform(get("/api/gamers/1"))
                 .andExpect(status().isOk()) 
@@ -86,27 +82,36 @@ public class GamerControllerTest {
                 .andExpect(jsonPath("$.username").value("TestGamer1"))
                 .andExpect(jsonPath("$.country").value("USA"));
         
-        verify(gamerRepository, times(1)).findById(1L);
+        verify(gamerService, times(1)).getGamerById(1L);
     }
 
-// Return 404 when gamer not found
     @Test 
     void getGamerById_WhenGamerNotExists_ShouldReturn404() throws Exception {
-        when(gamerRepository.findById(999L)).thenReturn(Optional.empty());
+        when(gamerService.getGamerById(999L)).thenReturn(Optional.empty());
         
         mockMvc.perform(get("/api/gamers/999"))
                 .andExpect(status().isNotFound()); 
         
-        verify(gamerRepository, times(1)).findById(999L);
+        verify(gamerService, times(1)).getGamerById(999L);
+    }
+
+    @Test 
+    void getGamerById_WithInvalidId_ShouldReturn400() throws Exception {
+        // Service throws IllegalArgumentException for invalid ID
+        when(gamerService.getGamerById(0L)).thenThrow(new IllegalArgumentException("Invalid ID. ID must be a positive number"));
+        
+        mockMvc.perform(get("/api/gamers/0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid ID. ID must be a positive number"));
+        
+        verify(gamerService, times(1)).getGamerById(0L);
     }
 
 // --- Test cases for POST /api/gamers endpoint ---
 
-// Create a new gamer
     @Test 
     void createGamer_WithValidData_ShouldCreateGamer() throws Exception {
-        when(gamerRepository.findByUsername("TestGamer1")).thenReturn(Optional.empty());
-        when(gamerRepository.save(any(Gamer.class))).thenReturn(testGamer);
+        when(gamerService.createGamer("TestGamer1", "USA")).thenReturn(testGamer);
         
         mockMvc.perform(post("/api/gamers")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -117,81 +122,74 @@ public class GamerControllerTest {
                 .andExpect(jsonPath("$.username").value("TestGamer1"))
                 .andExpect(jsonPath("$.country").value("USA"));
         
-        // Verify repository interactions
-        verify(gamerRepository, times(1)).findByUsername("TestGamer1");
-        verify(gamerRepository, times(1)).save(any(Gamer.class));
+        verify(gamerService, times(1)).createGamer("TestGamer1", "USA");
     }
 
-// Return 409 when username already exists
     @Test 
-    void createGamer_WithExistingUsername_ShouldReturn409() throws Exception {
-        when(gamerRepository.findByUsername("TestGamer1")).thenReturn(Optional.of(testGamer));
+    void createGamer_WithExistingUsername_ShouldReturn400() throws Exception {
+        // Service throws IllegalArgumentException for duplicate username
+        when(gamerService.createGamer("TestGamer1", "USA"))
+                .thenThrow(new IllegalArgumentException("Username already exists"));
         
         mockMvc.perform(post("/api/gamers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testGamerDTO)))
-                .andExpect(status().isConflict()) 
+                .andExpect(status().isBadRequest()) 
                 .andExpect(content().string("Username already exists"));
         
-        // Verify repository was checked for username, but save was never called
-        verify(gamerRepository, times(1)).findByUsername("TestGamer1");
-        verify(gamerRepository, never()).save(any(Gamer.class));
+        verify(gamerService, times(1)).createGamer("TestGamer1", "USA");
     }
 
-// Return 400 when username is invalid (too short)
     @Test 
     void createGamer_WithInvalidUsername_ShouldReturn400() throws Exception {
-        GamerDTO invalidGamerDTO = new GamerDTO("ab", "USA");
+        GamerDTO invalidGamerDTO = new GamerDTO("ab", "USA"); // Too short
         
+        // Bean validation should catch this before reaching service
         mockMvc.perform(post("/api/gamers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidGamerDTO)))
                 .andExpect(status().isBadRequest()); 
 
-        // Repository should never be called due to validation failure
-        verify(gamerRepository, never()).findByUsername(anyString());
-        verify(gamerRepository, never()).save(any(Gamer.class));
+        // Service should never be called due to validation failure
+        verify(gamerService, never()).createGamer(any(), any());
     }
 
-// Return 400 when username is empty
     @Test 
     void createGamer_WithEmptyUsername_ShouldReturn400() throws Exception {
         GamerDTO emptyUsernameDTO = new GamerDTO("", "USA"); 
         
+        // Bean validation should catch this before reaching service
         mockMvc.perform(post("/api/gamers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(emptyUsernameDTO)))
                 .andExpect(status().isBadRequest()); 
         
-        verify(gamerRepository, never()).findByUsername(anyString());
-        verify(gamerRepository, never()).save(any(Gamer.class));
+        verify(gamerService, never()).createGamer(any(), any());
     }
 
-// Return 400 when country is empty
     @Test 
     void createGamer_WithEmptyCountry_ShouldReturn400() throws Exception {
         GamerDTO emptyCountryDTO = new GamerDTO("ValidUsername", ""); 
         
+        // Bean validation should catch this before reaching service
         mockMvc.perform(post("/api/gamers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(emptyCountryDTO)))
                 .andExpect(status().isBadRequest()); 
         
-        verify(gamerRepository, never()).findByUsername(anyString());
-        verify(gamerRepository, never()).save(any(Gamer.class));
+        verify(gamerService, never()).createGamer(any(), any());
     }
 
-// Return 400 when country is too short
     @Test 
     void createGamer_WithInvalidCountry_ShouldReturn400() throws Exception {
-        GamerDTO invalidCountryDTO = new GamerDTO("ValidUser", "A"); 
+        GamerDTO invalidCountryDTO = new GamerDTO("ValidUser", "A"); // Too short
         
+        // Bean validation should catch this before reaching service
         mockMvc.perform(post("/api/gamers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidCountryDTO)))
                 .andExpect(status().isBadRequest()); 
         
-        verify(gamerRepository, never()).findByUsername(anyString());
-        verify(gamerRepository, never()).save(any(Gamer.class));
+        verify(gamerService, never()).createGamer(any(), any());
     }
 }

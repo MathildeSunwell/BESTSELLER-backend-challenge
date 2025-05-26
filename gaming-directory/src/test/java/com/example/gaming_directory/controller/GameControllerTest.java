@@ -2,7 +2,7 @@ package com.example.gaming_directory.controller;
 
 import com.example.gaming_directory.dto.GameDTO;
 import com.example.gaming_directory.entity.Game;
-import com.example.gaming_directory.repository.GameRepository;
+import com.example.gaming_directory.service.GameService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -29,7 +28,7 @@ public class GameControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private GameRepository gameRepository; 
+    private GameService gameService; // Mock service instead of repository
     
     @Autowired
     private ObjectMapper objectMapper; 
@@ -54,7 +53,7 @@ public class GameControllerTest {
             new Game("Diablo"),
             new Game("Fortnite")
         );
-        when(gameRepository.findAll()).thenReturn(games);
+        when(gameService.getAllGames()).thenReturn(games);
 
         mockMvc.perform(get("/api/games"))
                 .andExpect(status().isOk())
@@ -64,14 +63,14 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$[1].name").value("Diablo"))
                 .andExpect(jsonPath("$[2].name").value("Fortnite"));
         
-        verify(gameRepository, times(1)).findAll();
+        verify(gameService, times(1)).getAllGames();
     }
 
 // --- Test cases for GET /api/games/{id} endpoint ---
 
     @Test 
     void getGameById_WhenGameExists_ShouldReturnGame() throws Exception {
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(testGame));
+        when(gameService.getGameById(1L)).thenReturn(Optional.of(testGame));
         
         mockMvc.perform(get("/api/games/1"))
                 .andExpect(status().isOk()) 
@@ -79,33 +78,36 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Counter-Strike"));
         
-        verify(gameRepository, times(1)).findById(1L);
+        verify(gameService, times(1)).getGameById(1L);
     }
 
     @Test 
     void getGameById_WhenGameNotExists_ShouldReturn404() throws Exception {
-        when(gameRepository.findById(999L)).thenReturn(Optional.empty());
+        when(gameService.getGameById(999L)).thenReturn(Optional.empty());
         
         mockMvc.perform(get("/api/games/999"))
                 .andExpect(status().isNotFound()); 
         
-        verify(gameRepository, times(1)).findById(999L);
+        verify(gameService, times(1)).getGameById(999L);
     }
 
     @Test 
     void getGameById_WithInvalidId_ShouldReturn400() throws Exception {
-        mockMvc.perform(get("/api/games/0"))
-                .andExpect(status().isBadRequest());
+        // Service throws IllegalArgumentException for invalid ID
+        when(gameService.getGameById(0L)).thenThrow(new IllegalArgumentException("Invalid ID. ID must be a positive number"));
         
-        verify(gameRepository, never()).findById(any());
+        mockMvc.perform(get("/api/games/0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid ID. ID must be a positive number"));
+        
+        verify(gameService, times(1)).getGameById(0L);
     }
 
 // --- Test cases for POST /api/games endpoint ---
 
     @Test 
     void createGame_WithValidData_ShouldCreateGame() throws Exception {
-        when(gameRepository.findByName("Counter-Strike")).thenReturn(Optional.empty());
-        when(gameRepository.save(any(Game.class))).thenReturn(testGame);
+        when(gameService.createGame("Counter-Strike")).thenReturn(testGame);
         
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -115,47 +117,49 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Counter-Strike"));
         
-        verify(gameRepository, times(1)).findByName("Counter-Strike");
-        verify(gameRepository, times(1)).save(any(Game.class));
+        verify(gameService, times(1)).createGame("Counter-Strike");
     }
 
     @Test 
-    void createGame_WithExistingName_ShouldReturn409() throws Exception {
-        when(gameRepository.findByName("Counter-Strike")).thenReturn(Optional.of(testGame));
+    void createGame_WithExistingName_ShouldReturn400() throws Exception {
+        // Service throws IllegalArgumentException for duplicate name
+        when(gameService.createGame("Counter-Strike"))
+                .thenThrow(new IllegalArgumentException("Game name already exists"));
         
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testGameDTO)))
-                .andExpect(status().isConflict()) 
+                .andExpect(status().isBadRequest()) 
                 .andExpect(content().string("Game name already exists"));
         
-        verify(gameRepository, times(1)).findByName("Counter-Strike");
-        verify(gameRepository, never()).save(any(Game.class));
+        verify(gameService, times(1)).createGame("Counter-Strike");
     }
 
     @Test 
     void createGame_WithEmptyName_ShouldReturn400() throws Exception {
         GameDTO emptyNameDTO = new GameDTO(""); 
         
+        // Bean validation should catch this before reaching service
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(emptyNameDTO)))
                 .andExpect(status().isBadRequest()); 
         
-        verify(gameRepository, never()).findByName(anyString());
-        verify(gameRepository, never()).save(any(Game.class));
+        // Service should never be called due to validation failure
+        verify(gameService, never()).createGame(any());
     }
 
     @Test 
     void createGame_WithInvalidName_ShouldReturn400() throws Exception {
         GameDTO invalidNameDTO = new GameDTO("A"); // Too short
         
+        // Bean validation should catch this before reaching service
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidNameDTO)))
                 .andExpect(status().isBadRequest()); 
         
-        verify(gameRepository, never()).findByName(anyString());
-        verify(gameRepository, never()).save(any(Game.class));
+        // Service should never be called due to validation failure
+        verify(gameService, never()).createGame(any());
     }
 }
